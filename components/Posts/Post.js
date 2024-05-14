@@ -8,6 +8,22 @@ const PostContainer = styled.div(() => ({
   border: '1px solid #ccc',
   borderRadius: '5px',
   overflow: 'hidden',
+  position: 'relative',
+}));
+
+const Avatar = styled.div(({ initials }) => ({
+  position: 'absolute',
+  top: '10px',
+  left: '10px',
+  backgroundColor: '#333',
+  color: '#fff',
+  width: '40px',
+  height: '40px',
+  borderRadius: '50%',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  fontSize: '20px',
 }));
 
 const CarouselContainer = styled.div(() => ({
@@ -44,6 +60,11 @@ const Content = styled.div(() => ({
   },
 }));
 
+const Header = styled.div(() => ({
+  padding: '8px',
+  marginLeft: '50px',
+}));
+
 const Button = styled.button(() => ({
   position: 'absolute',
   bottom: 0,
@@ -53,6 +74,8 @@ const Button = styled.button(() => ({
   fontSize: '20px',
   cursor: 'pointer',
   height: '50px',
+  top: '50%', // Center the buttons vertically
+  transform: 'translateY(-50%)', // Adjust for vertical centering
 }));
 
 const PrevButton = styled(Button)`
@@ -63,13 +86,16 @@ const NextButton = styled(Button)`
   right: 10px;
 `;
 
-const Post = ({ post }) => {
+const Post = ({ post }) => {  
   const carouselRef = useRef(null);
+  const firstNameInitial = post.username.charAt(0);
+  const lastNameInitial = post.username.split(' ')[1]?.charAt(0);
+  const initials = `${firstNameInitial}${lastNameInitial ? lastNameInitial : ''}`;
 
   const handleNextClick = () => {
     if (carouselRef.current) {
       carouselRef.current.scrollBy({
-        left: 50,
+        left: 300,
         behavior: 'smooth',
       });
     }
@@ -78,7 +104,7 @@ const Post = ({ post }) => {
   const handlePrevClick = () => {
     if (carouselRef.current) {
       carouselRef.current.scrollBy({
-        left: -70,
+        left: -300,
         behavior: 'smooth',
       });
     }
@@ -86,6 +112,15 @@ const Post = ({ post }) => {
 
   return (
     <PostContainer>
+      {/* Display Avatar with user initials */}
+      <Avatar initial={initials}>
+        {initials}
+      </Avatar>
+      {/* Display user name and email */}
+      <Header>
+        <h3>{post.username}</h3>
+        <p>{post.email}</p>
+      </Header>
       <CarouselContainer>
         <Carousel ref={carouselRef}>
           {post.images.map((image, index) => (
@@ -108,10 +143,12 @@ const Post = ({ post }) => {
 Post.propTypes = {
   post: PropTypes.shape({
     content: PropTypes.any,
-    images: PropTypes.shape({
-      map: PropTypes.func,
-    }),
+    images: PropTypes.arrayOf(PropTypes.shape({
+      url: PropTypes.string,
+    })),
     title: PropTypes.any,
+    username: PropTypes.string,
+    email: PropTypes.string,
   }),
 };
 
